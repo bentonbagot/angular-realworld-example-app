@@ -34,7 +34,7 @@ export default class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userService.isAuthenticated
+    this.userService.isAuthenticated$
       .pipe(
         tap((isAuthenticated) => {
           if (isAuthenticated) {

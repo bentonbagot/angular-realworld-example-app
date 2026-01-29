@@ -1,7 +1,6 @@
 import { Routes } from "@angular/router";
 import { inject } from "@angular/core";
 import { UserService } from "./core/auth/services/user.service";
-import { map } from "rxjs/operators";
 
 export const routes: Routes = [
   {
@@ -11,21 +10,17 @@ export const routes: Routes = [
   {
     path: "login",
     loadComponent: () => import("./core/auth/auth.component"),
-    canActivate: [
-      () => inject(UserService).isAuthenticated.pipe(map((isAuth) => !isAuth)),
-    ],
+    canActivate: [() => !inject(UserService).isAuthenticated()],
   },
   {
     path: "register",
     loadComponent: () => import("./core/auth/auth.component"),
-    canActivate: [
-      () => inject(UserService).isAuthenticated.pipe(map((isAuth) => !isAuth)),
-    ],
+    canActivate: [() => !inject(UserService).isAuthenticated()],
   },
   {
     path: "settings",
     loadComponent: () => import("./features/settings/settings.component"),
-    canActivate: [() => inject(UserService).isAuthenticated],
+    canActivate: [() => inject(UserService).isAuthenticated()],
   },
   {
     path: "profile",
@@ -38,13 +33,13 @@ export const routes: Routes = [
         path: "",
         loadComponent: () =>
           import("./features/article/pages/editor/editor.component"),
-        canActivate: [() => inject(UserService).isAuthenticated],
+        canActivate: [() => inject(UserService).isAuthenticated()],
       },
       {
         path: ":slug",
         loadComponent: () =>
           import("./features/article/pages/editor/editor.component"),
-        canActivate: [() => inject(UserService).isAuthenticated],
+        canActivate: [() => inject(UserService).isAuthenticated()],
       },
     ],
   },
