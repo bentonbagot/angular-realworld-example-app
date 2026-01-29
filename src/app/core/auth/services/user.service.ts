@@ -1,20 +1,24 @@
-import { Injectable } from "@angular/core";
-import { Observable, BehaviorSubject } from "rxjs";
+import { Injectable, signal, computed, inject } from "@angular/core";
+import { Observable } from "rxjs";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 import { JwtService } from "./jwt.service";
-import { map, distinctUntilChanged, tap, shareReplay } from "rxjs/operators";
+import { tap, shareReplay, map, distinctUntilChanged } from "rxjs/operators";
 import { HttpClient } from "@angular/common/http";
 import { User } from "../user.model";
 import { Router } from "@angular/router";
 
 @Injectable({ providedIn: "root" })
 export class UserService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser = this.currentUserSubject
-    .asObservable()
-    .pipe(distinctUntilChanged());
+  public currentUserSignal = signal<User | null>(null);
 
-  public isAuthenticated = this.currentUser.pipe(map((user) => !!user));
+  public isAuthenticated = computed(() => !!this.currentUserSignal());
+
+  // Observable versions for backward compatibility with existing components
+  public currentUser = toObservable(this.currentUserSignal).pipe(
+    distinctUntilChanged(),
+  );
+  public isAuthenticated$ = this.currentUser.pipe(map((user) => !!user));
 
   constructor(
     private readonly http: HttpClient,
@@ -59,18 +63,18 @@ export class UserService {
   update(user: Partial<User>): Observable<{ user: User }> {
     return this.http.put<{ user: User }>("/user", { user }).pipe(
       tap(({ user }) => {
-        this.currentUserSubject.next(user);
+        this.currentUserSignal.set(user);
       }),
     );
   }
 
   setAuth(user: User): void {
     this.jwtService.saveToken(user.token);
-    this.currentUserSubject.next(user);
+    this.currentUserSignal.set(user);
   }
 
   purgeAuth(): void {
     this.jwtService.destroyToken();
-    this.currentUserSubject.next(null);
+    this.currentUserSignal.set(null);
   }
 }
