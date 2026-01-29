@@ -46,7 +46,7 @@
         </a>
       </li>
 
-      @if (currentUser$ | async; as currentUser) {
+      @if (currentUser(); as currentUser) {
         <li class="nav-item">
           <a
             class="nav-link"

@@ -26,7 +26,7 @@ export class IfAuthenticatedDirective<T> implements OnInit {
   hasView = false;
 
   ngOnInit() {
-    this.userService.isAuthenticated
+    this.userService.isAuthenticated$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((isAuthenticated: boolean) => {
         const authRequired = isAuthenticated && this.condition;
